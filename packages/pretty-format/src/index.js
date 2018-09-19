@@ -42,10 +42,26 @@ const errorToString = Error.prototype.toString;
 const regExpToString = RegExp.prototype.toString;
 const symbolToString = Symbol.prototype.toString;
 
+const constructorNameRegex = /^\s*function\s*(\S*)\s*\(/
+const nodeConstructorNameRegex = /\[object (.+)\]/
+
 // Explicitly comparing typeof constructor to function avoids undefined as name
 // when mock identity-obj-proxy returns the key as the value for any key.
-const getConstructorName = val =>
-  (typeof val.constructor === 'function' && val.constructor.name) || 'Object';
+const getConstructorName = val => {
+  if (typeof val.constructor === 'function') {
+    // IE doesn't support constructor.name
+    if (val.constructor.name != null) {
+      return val.constructor.name;
+    } else {
+      return val.constructor.toString().match(constructorNameRegex)[1] || 'Object';
+    }
+  } else if (typeof val.constructor === 'object' && Node != null && div instanceof Node) {
+    // In IE the constructor of a DOM element is an object
+    return val.constructor.toString().match(nodeConstructorNameRegex)[1] || 'Object'
+  } else {
+    return 'Object'
+  }
+}
 
 // Is val is equal to global window object? Works even if it does not exist :)
 /* global window */
@@ -58,7 +74,7 @@ class PrettyFormatPluginError extends Error {
   constructor(message, stack) {
     super(message);
     this.stack = stack;
-    this.name = this.constructor.name;
+    this.name = getConstructorName(this);
   }
 }
 
@@ -204,8 +220,8 @@ function printComplexValue(
   }
   if (isToStringedArrayType(toStringed)) {
     return hitMaxDepth
-      ? '[' + val.constructor.name + ']'
-      : (min ? '' : val.constructor.name + ' ') +
+      ? '[' + getConstructorName(val) + ']'
+      : (min ? '' : getConstructorName(val) + ' ') +
           '[' +
           printListItems(val, config, indentation, depth, refs, printer) +
           ']';
