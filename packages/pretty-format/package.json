@@ -1,5 +1,5 @@
 {
-  "name": "pretty-format",
+  "name": "@zentrick/pretty-format",
   "version": "23.6.0",
   "repository": {
     "type": "git",
