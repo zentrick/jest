@@ -42,7 +42,7 @@ const errorToString = Error.prototype.toString;
 const regExpToString = RegExp.prototype.toString;
 const symbolToString = Symbol.prototype.toString;
 
-const constructorNameRegex = /^\s*function\s*(\S*)\s*\(/
+const constructorNameRegex = /^\s*function\s*(\S*?)\s*\(/
 const nodeConstructorNameRegex = /\[object (.+)\]/
 
 // Explicitly comparing typeof constructor to function avoids undefined as name
